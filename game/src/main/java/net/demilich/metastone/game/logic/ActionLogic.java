@@ -111,6 +111,8 @@ public class ActionLogic {
 			validActions.add(new EndTurnAction());
 		}
 
+//		System.out.println(validActions);
+
 		return validActions;
 	}
 

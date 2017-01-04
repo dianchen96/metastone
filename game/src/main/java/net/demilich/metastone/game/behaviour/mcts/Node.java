@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.demilich.metastone.game.GameContext;
 import net.demilich.metastone.game.Player;
+import net.demilich.metastone.game.actions.ActionType;
 import net.demilich.metastone.game.actions.GameAction;
 import net.demilich.metastone.game.behaviour.PlayRandomBehaviour;
 
@@ -32,8 +33,14 @@ class Node {
 		GameAction action = validTransitions.remove(0);
 		GameContext newState = state.clone();
 
+
 		try {
 			newState.getLogic().performGameAction(newState.getActivePlayer().getId(), action);
+
+			// Fixing bug: if action is end-turn, change game-context's turn state property
+			if (action.getActionType() == ActionType.END_TURN) {
+				newState.startTurn(newState.getActivePlayerId());
+			}
 		} catch (Exception e) {
 			System.err.println("Exception on action: " + action + " state decided: " + state.gameDecided());
 			e.printStackTrace();

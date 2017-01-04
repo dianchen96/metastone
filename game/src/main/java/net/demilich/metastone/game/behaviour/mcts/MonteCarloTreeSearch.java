@@ -42,6 +42,7 @@ public class MonteCarloTreeSearch extends Behaviour {
 		root.initState(context, validActions);
 		UctPolicy treePolicy = new UctPolicy();
 		for (int i = 0; i < ITERATIONS; i++) {
+//			System.out.println(i + " iter");
 			root.process(treePolicy);
 		}
 		GameAction bestAction = root.getBestAction();

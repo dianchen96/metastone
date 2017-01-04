@@ -16,6 +16,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import net.demilich.metastone.game.behaviour.mcts.MonteCarloTreeSearch;
 import net.demilich.metastone.game.behaviour.GreedyOptimizeMove;
 import net.demilich.metastone.game.behaviour.IBehaviour;
 import net.demilich.metastone.game.behaviour.NoAggressionBehaviour;
@@ -169,6 +170,8 @@ public class PlayerConfigView extends VBox {
 
 		behaviourList.add(new GreedyOptimizeMove(new WeightedHeuristic()));
 		behaviourList.add(new NoAggressionBehaviour());
+		behaviourList.add(new MonteCarloTreeSearch());
+
 
 		behaviourBox.setItems(behaviourList);
 		behaviourBox.valueProperty().addListener(this::onBehaviourChanged);
