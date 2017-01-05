@@ -40,18 +40,18 @@ public class SpellUtils {
 
 	public static boolean evaluateOperation(Operation operation, int actualValue, int targetValue) {
 		switch (operation) {
-		case EQUAL:
-			return actualValue == targetValue;
-		case GREATER:
-			return actualValue > targetValue;
-		case GREATER_OR_EQUAL:
-			return actualValue >= targetValue;
-		case HAS:
-			return actualValue > 0;
-		case LESS:
-			return actualValue < targetValue;
-		case LESS_OR_EQUAL:
-			return actualValue <= targetValue;
+			case EQUAL:
+				return actualValue == targetValue;
+			case GREATER:
+				return actualValue > targetValue;
+			case GREATER_OR_EQUAL:
+				return actualValue >= targetValue;
+			case HAS:
+				return actualValue > 0;
+			case LESS:
+				return actualValue < targetValue;
+			case LESS_OR_EQUAL:
+				return actualValue <= targetValue;
 		}
 		return false;
 	}
@@ -65,7 +65,7 @@ public class SpellUtils {
 		}
 		return result;
 	}
-	
+
 	public static Card getCard(GameContext context, SpellDesc spell) {
 		Card card = null;
 		String cardName = (String) spell.get(SpellArg.CARD);
@@ -91,6 +91,29 @@ public class SpellUtils {
 			cards[i] = context.getCardById(cardNames[i]);
 		}
 		return cards;
+	}
+
+	public static void setDiscoverAction(GameContext context, Player player, SpellDesc desc, CardCollection cards, Entity source, Entity target) {
+		SpellDesc spell = (SpellDesc) desc.get(SpellArg.SPELL);
+		List<GameAction> discoverActions = new ArrayList<>();
+		for (Card card : cards) {
+			SpellDesc spellClone = spell.addArg(SpellArg.CARD, card.getCardId());
+			DiscoverAction discover = DiscoverAction.createDiscover(spellClone);
+			discover.setCard(card);
+			discover.setActionSuffix(card.getName());
+			discoverActions.add(discover);
+		}
+		if (discoverActions.size() == 0) {
+			return;
+		}
+
+		if (context.getLogic().attributeExists(Attribute.ALL_RANDOM_YOGG_ONLY_FINAL_DESTINATION)) {
+			DiscoverAction action = (DiscoverAction) discoverActions.get(context.getLogic().random(discoverActions.size()));
+			SpellUtils.castChildSpell(context, player, action.getSpell(), source, target);
+		} else {
+			context.setPendingActions(discoverActions);
+		}
+
 	}
 	
 	public static DiscoverAction getDiscover(GameContext context, Player player, SpellDesc desc, CardCollection cards) {

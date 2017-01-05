@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Stack;
 
+import net.demilich.metastone.game.actions.BattlecryAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,10 @@ public class GameContext implements Cloneable, IDisposable {
 
 	private CardCollection tempCards = new CardCollection();
 
+	private List<GameAction> pendingActions = null;
+
+	private Actor pendingActor = null;
+
 	public GameContext(Player player1, Player player2, GameLogic logic, DeckFormat deckFormat) {
 		this.getPlayers()[PLAYER_1] = player1;
 		player1.setId(PLAYER_1);
@@ -76,6 +81,32 @@ public class GameContext implements Cloneable, IDisposable {
 	public void addTempCard(Card card) {
 		tempCards.add(card);
 	}
+
+	public boolean hasPendingActions() {
+		return pendingActions != null && pendingActions.size() > 0;
+	}
+
+	public void setPendingActions(List<GameAction> pendingActions) {
+		this.pendingActions = pendingActions;
+	}
+
+	public void clearPendingActions() {
+		pendingActions = null;
+	}
+
+	public boolean hasPendingActor() {
+		return pendingActor != null;
+	}
+
+
+	public void setPendingActor(Actor pendingActor) {
+		this.pendingActor = pendingActor;
+	}
+
+	public void clearPendingActor() {
+		pendingActor = null;
+	}
+
 
 	public void addTrigger(IGameEventListener trigger) {
 		triggerManager.addTrigger(trigger);
@@ -398,6 +429,9 @@ public class GameContext implements Cloneable, IDisposable {
 		if (gameDecided()) {
 			return new ArrayList<>();
 		}
+		if (hasPendingActions()) {
+			return pendingActions;
+		}
 		return logic.getValidActions(activePlayer);
 	}
 
@@ -428,6 +462,15 @@ public class GameContext implements Cloneable, IDisposable {
 	}
 
 	private void performAction(int playerId, GameAction gameAction) {
+		if (gameAction.getActionType() == ActionType.DISCOVER) {
+			clearPendingActions();
+		} else if (gameAction.getActionType() == ActionType.BATTLECRY) {
+			logic.applyBattlecry(playerId, pendingActor, (BattlecryAction) gameAction);
+
+			// This should happen after applying action
+			clearPendingActions();
+			clearPendingActor();
+		}
 		logic.performGameAction(playerId, gameAction);
 		onGameStateChanged();
 	}

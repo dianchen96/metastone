@@ -209,6 +209,31 @@ public class GameLogic implements Cloneable {
 		return baseValue + spellpower;
 	}
 
+
+	/**
+	 * Applies battlecry
+	 * @param playerId
+	 * 			The playerId of player to place Battlecry upon
+	 * @param actor
+	 * 			The source actor
+	 * @param battlecryAction
+	 * 			The Battlecry action to be applied
+	 */
+	public void applyBattlecry(int playerId, Actor actor, BattlecryAction battlecryAction) {
+		Player player = context.getPlayer(playerId);
+		BattlecryAction battlecry = actor.getBattlecry();
+		if (hasAttribute(player, Attribute.DOUBLE_BATTLECRIES) && actor.getSourceCard().hasAttribute(Attribute.BATTLECRY)) {
+			// You need DOUBLE_BATTLECRIES before your battlecry action, not after.
+			performGameAction(playerId, battlecryAction);
+			if (!battlecry.canBeExecuted(context, player)) {
+				return;
+			}
+			performGameAction(playerId, battlecryAction);
+		} else {
+			performGameAction(playerId, battlecryAction);
+		}
+	}
+
 	/**
 	 * Assigns an ID to each Card in a given deck
 	 * @param cardCollection
@@ -1614,6 +1639,11 @@ public class GameLogic implements Cloneable {
 		newCard.setLocation(CardLocation.DECK);
 	}
 
+	private void setBattleCry(GameContext context, List<GameAction> battlecryActions, Actor actor) {
+		context.setPendingActions(battlecryActions);
+		context.setPendingActor(actor);
+	}
+
 	private void resolveBattlecry(int playerId, Actor actor) {
 		BattlecryAction battlecry = actor.getBattlecry();
 		Player player = context.getPlayer(playerId);
@@ -1639,20 +1669,14 @@ public class GameLogic implements Cloneable {
 			if (attributeExists(Attribute.ALL_RANDOM_FINAL_DESTINATION)) {
 				battlecryAction = battlecryActions.get(random(battlecryActions.size()));
 			} else {
-				battlecryAction = player.getBehaviour().requestAction(context, player, battlecryActions);
+				setBattleCry(context, battlecryActions, actor);
+//				battlecryAction = player.getBehaviour().requestAction(context, player, battlecryActions);
 			}
 		} else {
 			battlecryAction = battlecry;
 		}
-		if (hasAttribute(player, Attribute.DOUBLE_BATTLECRIES) && actor.getSourceCard().hasAttribute(Attribute.BATTLECRY)) {
-			// You need DOUBLE_BATTLECRIES before your battlecry action, not after.
-			performGameAction(playerId, battlecryAction);
-			if (!battlecry.canBeExecuted(context, player)) {
-				return;
-			}
-			performGameAction(playerId, battlecryAction);
-		} else {
-			performGameAction(playerId, battlecryAction);
+		if (battlecryAction != null) {
+			applyBattlecry(playerId, actor, (BattlecryAction) battlecryAction);
 		}
 	}
 
