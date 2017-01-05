@@ -14,7 +14,7 @@ public class MonteCarloTreeSearch extends Behaviour {
 
 	//private final static Logger logger = LoggerFactory.getLogger(MonteCarloTreeSearch.class);
 
-	private static final int ITERATIONS = 500;
+	private static final int ITERATIONS = 2000;
 
 	@Override
 	public String getName() {
@@ -39,6 +39,7 @@ public class MonteCarloTreeSearch extends Behaviour {
 			return validActions.get(0);
 		}
 		Node root = new Node(null, player.getId());
+//		HeuristicNode root = new HeuristicNode(null, player.getId());
 		root.initState(context, validActions);
 		UctPolicy treePolicy = new UctPolicy();
 		for (int i = 0; i < ITERATIONS; i++) {

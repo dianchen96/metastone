@@ -29,7 +29,7 @@ class Node {
 		return !validTransitions.isEmpty();
 	}
 
-	private Node expand() {
+	protected Node expand() {
 		GameAction action = validTransitions.remove(0);
 		GameContext newState = state.clone();
 
@@ -84,6 +84,15 @@ class Node {
 	public int getVisits() {
 		return visits;
 	}
+
+	public List<GameAction> getValidTransitions() {
+		return validTransitions;
+	}
+
+	public void addChild(Node child) {
+		children.add(child);
+	}
+
 
 	public void initState(GameContext state, List<GameAction> validActions) {
 		this.state = state.clone();

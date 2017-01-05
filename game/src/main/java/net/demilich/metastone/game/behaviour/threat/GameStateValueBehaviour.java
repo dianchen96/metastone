@@ -112,6 +112,7 @@ public class GameStateValueBehaviour extends Behaviour {
 			}
 		}
 
+
 		logger.debug("Selecting best action {} with score {}", bestAction, bestScore);
 
 		return bestAction;

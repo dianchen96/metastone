@@ -28,7 +28,8 @@ public class DiscoverDrawSpell extends Spell {
 		}
 		
 		if (!cards.isEmpty()) {
-			SpellUtils.castChildSpell(context, player, SpellUtils.getDiscover(context, player, desc, cards).getSpell(), source, target);
+			SpellUtils.setDiscoverAction(context, player, desc, cards, source, target);
+//			SpellUtils.castChildSpell(context, player, SpellUtils.getDiscover(context, player, desc, cards).getSpell(), source, target);
 		}
 	}
 
