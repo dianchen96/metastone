@@ -13,6 +13,7 @@ class UctPolicy implements ITreePolicy {
 	public Node select(Node parent) {
 		Node selected = null;
 		double bestValue = Double.NEGATIVE_INFINITY;
+//		System.out.println(parent.getChildren());
 		for (Node child : parent.getChildren()) {
 			double uctValue = child.getVisits() == 0 ? 1000000
 					: child.getScore() / (double) child.getVisits() + C * Math.sqrt(Math.log(parent.getVisits()) / child.getVisits())
@@ -23,6 +24,7 @@ class UctPolicy implements ITreePolicy {
 				selected = child;
 				bestValue = uctValue;
 			}
+
 		}
 		return selected;
 	}

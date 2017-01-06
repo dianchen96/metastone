@@ -14,7 +14,7 @@ public class MonteCarloTreeSearch extends Behaviour {
 
 	//private final static Logger logger = LoggerFactory.getLogger(MonteCarloTreeSearch.class);
 
-	private static final int ITERATIONS = 2000;
+	private static final int ITERATIONS = 500;
 
 	@Override
 	public String getName() {

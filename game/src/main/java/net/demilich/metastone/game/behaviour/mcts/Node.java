@@ -49,6 +49,7 @@ class Node {
 
 		Node child = new Node(action, getPlayer());
 		child.initState(newState, newState.getValidActions());
+//		System.out.println("Created " + child + " " + child.validTransitions);
 		children.add(child);
 		return child;
 	}
@@ -133,8 +134,13 @@ class Node {
 		}
 
 		int value = rollOut(current);
+		int winnerID = value == 0 ? 1 - getPlayer() : getPlayer();
+		System.out.println(value + " " + winnerID + " " + getPlayer());
 		for (Node node : visited) {
 			node.updateStats(value);
+//			if (node.getState().getActivePlayerId() == winnerID) {
+//				node.updateStats(value);
+//			}
 		}
 	}
 
@@ -149,7 +155,7 @@ class Node {
 			player.setBehaviour(new PlayRandomBehaviour());
 		}
 
-		simulation.playTurn();
+		simulation.play();
 
 		return simulation.getWinningPlayerId() == getPlayer() ? 1 : 0;
 	}
