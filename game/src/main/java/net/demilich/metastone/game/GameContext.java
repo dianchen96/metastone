@@ -149,6 +149,18 @@ public class GameContext implements Cloneable, IDisposable {
 			}
 		}
 		clone.getLogic().setLoggingEnabled(false);
+
+		// TODO: Integrate pendingActions and pendingActors into Environment
+		if (pendingActions != null) {
+			List<GameAction> clonePendingActions = new ArrayList<>();
+			clonePendingActions.addAll(pendingActions);
+			clone.setPendingActions(clonePendingActions);
+		}
+
+		if (pendingActor != null) {
+			clone.setPendingActor(pendingActor.clone());
+		}
+
 		return clone;
 	}
 
@@ -162,7 +174,7 @@ public class GameContext implements Cloneable, IDisposable {
 		environment.clear();
 	}
 
-	private void endGame() {
+	public void endGame() {
 		winner = logic.getWinner(getActivePlayer(), getOpponent(getActivePlayer()));
 		for (Player player : getPlayers()) {
 			player.getBehaviour().onGameOver(this, player.getId(), winner != null ? winner.getId() : -1);

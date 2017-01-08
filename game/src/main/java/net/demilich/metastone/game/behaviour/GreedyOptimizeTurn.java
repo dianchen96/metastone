@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import net.demilich.metastone.NotificationProxy;
+import net.demilich.metastone.game.behaviour.threat.FeatureVector;
+import net.demilich.metastone.game.behaviour.threat.ThreatBasedHeuristic;
+import net.demilich.metastone.trainingmode.RequestTrainingDataNotification;
+import net.demilich.metastone.trainingmode.TrainingData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +29,13 @@ public class GreedyOptimizeTurn extends Behaviour {
 	private final HashMap<ActionType, Integer> evaluatedActions = new HashMap<ActionType, Integer>();
 	private final TranspositionTable table = new TranspositionTable();
 
-	public GreedyOptimizeTurn(IGameStateHeuristic heuristic) {
-		this.heuristic = heuristic;
+	public GreedyOptimizeTurn() {
+		heuristic = new ThreatBasedHeuristic(FeatureVector.getFittest());
 	}
+
+//	public GreedyOptimizeTurn(IGameStateHeuristic heuristic) {
+//		this.heuristic = heuristic;
+//	}
 
 	private double alphaBeta(GameContext context, int playerId, GameAction action, int depth) {
 		GameContext simulation = context.clone();
@@ -60,16 +69,17 @@ public class GreedyOptimizeTurn extends Behaviour {
 
 	@Override
 	public IBehaviour clone() {
-		try {
-			return new GreedyOptimizeTurn(heuristic.getClass().newInstance());
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+//		try {
+//			return new GreedyOptimizeTurn();
+//		} catch (InstantiationException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IllegalAccessException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		return new GreedyOptimizeTurn();
+//		return null;
 	}
 
 	@Override
@@ -95,10 +105,10 @@ public class GreedyOptimizeTurn extends Behaviour {
 			return validActions.get(0);
 		}
 
-		// for now, do now evaluate battecry actions
-		if (validActions.get(0).getActionType() == ActionType.BATTLECRY) {
-			return validActions.get(context.getLogic().random(validActions.size()));
-		}
+//		// for now, do now evaluate battecry actions
+//		if (validActions.get(0).getActionType() == ActionType.BATTLECRY) {
+//			return validActions.get(context.getLogic().random(validActions.size()));
+//		}
 
 		if (assignedGC != 0 && assignedGC != context.hashCode()) {
 			logger.warn("AI behaviour was used in another context!");
@@ -133,6 +143,7 @@ public class GreedyOptimizeTurn extends Behaviour {
 
 		return bestAction;
 	}
+
 
 	/*private double simulateAction(GameContext context, int playerId, GameAction action) {
 		GameContext simulation = context.clone();

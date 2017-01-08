@@ -9,6 +9,7 @@ import net.demilich.metastone.game.Player;
 import net.demilich.metastone.game.actions.ActionType;
 import net.demilich.metastone.game.actions.GameAction;
 import net.demilich.metastone.game.behaviour.PlayRandomBehaviour;
+import net.demilich.metastone.game.logic.GameLogic;
 
 class Node {
 
@@ -134,13 +135,8 @@ class Node {
 		}
 
 		int value = rollOut(current);
-		int winnerID = value == 0 ? 1 - getPlayer() : getPlayer();
-		System.out.println(value + " " + winnerID + " " + getPlayer());
 		for (Node node : visited) {
 			node.updateStats(value);
-//			if (node.getState().getActivePlayerId() == winnerID) {
-//				node.updateStats(value);
-//			}
 		}
 	}
 
@@ -155,7 +151,14 @@ class Node {
 			player.setBehaviour(new PlayRandomBehaviour());
 		}
 
-		simulation.play();
+		while (!simulation.gameDecided()) {
+			simulation.startTurn(simulation.getActivePlayerId());
+			while (simulation.playTurn()) {}
+			if (simulation.getTurn() > GameLogic.TURN_LIMIT) {
+				break;
+			}
+		}
+		simulation.endGame();
 
 		return simulation.getWinningPlayerId() == getPlayer() ? 1 : 0;
 	}

@@ -7,12 +7,14 @@ import net.demilich.metastone.game.actions.ActionType;
 import net.demilich.metastone.game.actions.GameAction;
 import net.demilich.metastone.game.behaviour.heuristic.IGameStateHeuristic;
 import net.demilich.metastone.game.behaviour.heuristic.WeightedHeuristic;
+import net.demilich.metastone.game.behaviour.threat.FeatureVector;
+import net.demilich.metastone.game.behaviour.threat.ThreatBasedHeuristic;
 
 
 public class HeuristicNode extends Node {
 
     private static final double HEURISTIC_WEIGHT = 1.0;
-    private static final IGameStateHeuristic evaluator = new WeightedHeuristic();
+    private static final IGameStateHeuristic evaluator = new ThreatBasedHeuristic(FeatureVector.getFittest());
 
     private double heuristics;
 
