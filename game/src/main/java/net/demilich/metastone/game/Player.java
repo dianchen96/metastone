@@ -23,6 +23,7 @@ public class Player extends Entity {
 	private final String deckName;
 
 	private final CardCollection deck;
+	private final CardCollection originDeck;
 	private final CardCollection hand = new CardCollection();
 	private final List<Entity> setAsideZone = new ArrayList<>();
 	private final List<Entity> graveyard = new ArrayList<>();
@@ -44,6 +45,7 @@ public class Player extends Entity {
 		this.deckName = otherPlayer.getDeckName();
 		this.setHero(otherPlayer.getHero().clone());
 		this.deck = otherPlayer.getDeck().clone();
+		this.originDeck = deck.clone();
 		this.attributes.putAll(otherPlayer.getAttributes());
 		this.hand.addAll(otherPlayer.getHand().clone());
 		this.minions.addAll(otherPlayer.getMinions().stream().map(Minion::clone).collect(Collectors.toList()));
@@ -62,6 +64,7 @@ public class Player extends Entity {
 		config.build();
 		Deck selectedDeck = config.getDeckForPlay();
 		this.deck = selectedDeck.getCardsCopy();
+		this.originDeck = deck.clone();
 		this.setHero(config.getHeroForPlay().createHero());
 		this.setName(config.getName() + " - " + hero.getName());
 		this.deckName = selectedDeck.getName();
@@ -87,6 +90,10 @@ public class Player extends Entity {
 
 	public CardCollection getDeck() {
 		return deck;
+	}
+
+	public CardCollection getOriginDeck() {
+		return originDeck;
 	}
 
 	public String getDeckName() {

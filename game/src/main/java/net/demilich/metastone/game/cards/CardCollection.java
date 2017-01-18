@@ -43,6 +43,16 @@ public class CardCollection implements Iterable<Card>, Cloneable {
 	public boolean contains(Card card) {
 		return cards.contains(card);
 	}
+
+	public boolean contains(String cardID) {
+		for (Card card : cards) {
+			if (card.getCardId().equals(cardID)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	
 	public boolean containsCard(Card card) {
 		if (card == null) {
@@ -129,6 +139,29 @@ public class CardCollection implements Iterable<Card>, Cloneable {
 			return true;
 		}
 		return false;
+	}
+
+	public int getIndex(Card card) {
+		return getIndex(0, card);
+	}
+
+	public int getIndex(int startIndex, Card card) {
+		for (int i = startIndex; i < getCount(); i++) {
+			if (get(i).getCardId().equals(card.getCardId())) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+
+	public int getIndex(String cardID) {
+		for (int i = 0; i < getCount(); i++) {
+			if (get(i).getCardId().equals(cardID)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public void shuffle() {

@@ -1,11 +1,14 @@
 package net.demilich.metastone.game;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Stack;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.util.*;
 
 import net.demilich.metastone.game.actions.BattlecryAction;
+import net.demilich.metastone.game.actions.PlayCardAction;
+import net.demilich.metastone.game.behaviour.learning.TrainingConfig;
+import net.demilich.metastone.game.entities.heroes.HeroClass;
+import net.demilich.metastone.game.heroes.powers.HeroPower;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,6 +175,105 @@ public class GameContext implements Cloneable, IDisposable {
 		getCardCostModifiers().clear();
 		triggerManager.dispose();
 		environment.clear();
+	}
+
+	/*
+		Return an encoded feature vector of current state
+	 */
+	public FloatBuffer getEncodedState(int playerID) {
+		FloatBuffer feature = FloatBuffer.allocate(TrainingConfig.STATE_SIZE);
+		Player player = getPlayer(playerID);
+		Player opponent = getPlayer(1 - playerID);
+
+		/* Get hand */
+		FloatBuffer handFeature = EncodeUtils.encodeCardList(player.getHand(), player.getOriginDeck()); // 30
+
+		/* Get deck */
+		FloatBuffer deckFeature = EncodeUtils.encodeCardList(player.getDeck(), player.getOriginDeck()); // 30
+
+		/* Get minions */
+		FloatBuffer minionsFeature = EncodeUtils.encodeMinions(player.getMinions(), player.getOriginDeck()); // 224
+		FloatBuffer opponentMinionsFeature = EncodeUtils.encodeOpponentMinions(opponent.getMinions()); // 14
+//		System.out.println(minionsFeature + " " + opponentMinionsFeature);
+
+		/* Get hero */
+		FloatBuffer playerHeroFeature = EncodeUtils.encodeHero(player.getHero()); // 3
+		FloatBuffer opponentHeroFeature = EncodeUtils.encodeHero(opponent.getHero()); // 3
+
+		/* Get secrets */
+		FloatBuffer secretsFeature = EncodeUtils.encodeSecrets(player.getSecrets(), player.getOriginDeck()); // 30
+
+		/* Get other information */
+		FloatBuffer otherFeature = EncodeUtils.encodeOthers(this, playerID); // 4
+
+		feature.put(handFeature);
+		feature.put(deckFeature);
+		feature.put(minionsFeature);
+		feature.put(opponentMinionsFeature);
+		feature.put(playerHeroFeature);
+		feature.put(opponentHeroFeature);
+		feature.put(secretsFeature);
+		feature.put(otherFeature);
+
+		feature.position(0);
+
+////		FloatBuffer tmp = ((ByteBuffer) feature.rewind()).asFloatBuffer();
+//		while (feature.hasRemaining()) {
+//			System.out.print(feature.get() + " ");
+//		}
+//		System.out.println();
+//
+//		feature.position(0);
+
+		return feature;
+	}
+
+	/*
+		Return an encoded feature vector of action. Note we don't encode battlecry and discover
+		actions for now.
+	 */
+	public FloatBuffer getEncodedAction(GameAction action, GameContext context, int playerID) {
+		FloatBuffer result = FloatBuffer.allocate(TrainingConfig.ACTION_SIZE);
+		Player player = getPlayer(playerID);
+		switch (action.getActionType()) {
+			case SUMMON: {
+				Card card = context.resolveCardReference(((PlayCardAction) action).getCardReference());
+				result.put(EncodeUtils.encodeActionType(action.getActionType()));
+				result.put(EncodeUtils.encodeSource(card, player.getOriginDeck()));
+				result.put(0.0f);
+				break;
+			}
+			case SPELL: {
+				Card card = context.resolveCardReference(((PlayCardAction) action).getCardReference());
+				result.put(EncodeUtils.encodeActionType(action.getActionType()));
+				result.put(EncodeUtils.encodeSource(card, player.getOriginDeck()));
+				result.put(0.0f);
+				break;
+			}
+			case PHYSICAL_ATTACK: {
+				result.put(EncodeUtils.encodeActionType(action.getActionType()));
+				result.put(new float[30]);
+				result.put(EncodeUtils.encodeTarget(context.resolveSingleTarget(action.getTargetKey())));
+				break;
+			}
+			case HERO_POWER: {
+				result.put(EncodeUtils.encodeActionType(action.getActionType()));
+				result.put(new float[30]);
+				result.put(EncodeUtils.encodeTarget(context.resolveSingleTarget(action.getTargetKey())));
+				break;
+			}
+			case END_TURN: {
+				result.put(EncodeUtils.encodeActionType(action.getActionType()));
+				result.put(new float[30]);
+				result.put(0.0f);
+				break;
+			}
+		}
+
+
+		result.position(0);
+
+		return result;
 	}
 
 	public void endGame() {

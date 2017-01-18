@@ -1,5 +1,8 @@
 subprojects {
     repositories {
+        maven {
+            url 'https://github.com/Goddchen/mvn-repo/raw/master/'
+        }
         mavenCentral()
     }
 
@@ -14,5 +17,17 @@ subprojects {
     compileJava {
         options.encoding = 'UTF-8'
         options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
+
+    dependencies {
+        def lmdbjni_version = '0.4.6'
+        compile "org.deephacks.lmdbjni:lmdbjni:$lmdbjni_version"
+        compile "org.deephacks.lmdbjni:lmdbjni-win64:$lmdbjni_version"
+        compile "org.deephacks.lmdbjni:lmdbjni-linux64:$lmdbjni_version"
+        compile "org.deephacks.lmdbjni:lmdbjni-osx64:$lmdbjni_version"
+
+        def deeplearning4j_version = '0.7.2'
+        compile "org.deeplearning4j:deeplearning4j-core:$deeplearning4j_version"
+
     }
 }
